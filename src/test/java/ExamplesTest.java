@@ -92,4 +92,16 @@ public class ExamplesTest {
     final CompletableFuture<String> g3 = CompletableFuture.completedFuture("c");
     assertEquals("abc", g1.thenCombine(g2, (s1, s2) -> s1 + s2).thenCombine(g3, (s12, s3) -> s12 + s3).get());
   }
+
+  @Test
+  public void testDereference() throws Exception {
+    final ListenableFuture<ListenableFuture<String>> f = Futures.immediateFuture(Futures.immediateFuture("hello"));
+    final ListenableFuture<String> result1 = Futures.dereference(f);
+    assertEquals("hello", result1.get());
+
+    final CompletableFuture<CompletableFuture<String>> g = CompletableFuture.completedFuture(CompletableFuture.completedFuture("hello"));
+
+    final CompletableFuture<String> result2 = null; // Not sure how to dereference g in java8
+
+  }
 }
