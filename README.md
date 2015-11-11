@@ -40,7 +40,9 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 | `Futures.immediateFuture(value)` | `CompletableFuture.completedFuture(value)`  |
 | `Futures.immediateFailedFuture(throwable)` | `new CompletableFuture().completeExceptionally(throwable)`  |
 | `Futures.withFallback(future, function)` | `future.exceptionally(function)`  |
-| `Futures.withFallback(future, asyncFunction)` | `future.thenApply(v -> CompletableFuture.completedFuture(v)).exceptionally(asyncFunction).thenCompose(t -> t)`  |
+| `Futures.withFallback(future, asyncFunction)` | `future.thenApply(v -> CompletableFuture.completedFuture(v))
+.exceptionally(asyncFunction)
+.thenCompose(t -> t)`  |
 | `SettableFuture.create()` | `new CompletableFuture()`  |
 
 # TODO: document allAsList / successfulAsList
