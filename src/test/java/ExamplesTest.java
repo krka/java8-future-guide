@@ -2,11 +2,13 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
+import com.spotify.futures.CompletableFuturesExtra;
 import com.spotify.futures.FuturesExtra;
 
 import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +37,7 @@ public class ExamplesTest {
       assertEquals("hello", e.getCause().getMessage());
     }
 
-    final CompletableFuture<String> hello2 = immediateFailed(new IllegalArgumentException("hello"));
+    final CompletableFuture<String> hello2 = CompletableFuturesExtra.exceptionallyCompletedFuture(new IllegalArgumentException("hello"));
 
     try {
       hello2.get();
@@ -43,12 +45,6 @@ public class ExamplesTest {
     } catch (ExecutionException e) {
       assertEquals("hello", e.getCause().getMessage());
     }
-  }
-
-  private CompletableFuture<String> immediateFailed(IllegalArgumentException ex) {
-    final CompletableFuture<String> hello2 = new CompletableFuture<>();
-    hello2.completeExceptionally(ex);
-    return hello2;
   }
 
   @Test
@@ -66,18 +62,27 @@ public class ExamplesTest {
                                                                   t -> Futures.immediateFuture("recover"));
     assertEquals("recover", result1.get());
 
-    final CompletableFuture<String> result2 = immediateFailed(new IllegalArgumentException("hello")).exceptionally(t -> "recover");
+    final CompletableFuture<String> result2 = CompletableFuturesExtra.<String>exceptionallyCompletedFuture(new IllegalArgumentException("hello")).exceptionally(t -> "recover");
     assertEquals("recover", result2.get());
   }
 
   @Test
   public void testDeferredFallback() throws Exception {
 
-    final ListenableFuture<String> result1 = Futures.withFallback(Futures.immediateFailedFuture(new IllegalArgumentException("hello")),
-                                                                  t -> SettableFuture.create());
+    final ListenableFuture<String> failedFuture1 = Futures.immediateFailedFuture(new IllegalArgumentException("hello"));
+    final SettableFuture<String> deferred1 = SettableFuture.create();
+    final ListenableFuture<String> result1 = Futures.withFallback(failedFuture1, t -> deferred1);
     assertFalse(result1.isDone());
+    deferred1.set("world");
+    assertEquals("world", FuturesExtra.getCompleted(result1));
 
-    // Not sure how to do this in java8
+    final CompletableFuture<String> failedFuture2 = CompletableFuturesExtra.exceptionallyCompletedFuture(new IllegalArgumentException("hello"));
+    final CompletableFuture<String> deferred2 = new CompletableFuture<>();
+    final CompletionStage<String> result2 = CompletableFuturesExtra.exceptionallyCompose(failedFuture2, throwable -> deferred2);
+
+    assertFalse(result2.toCompletableFuture().isDone());
+    deferred2.complete("world");
+    assertEquals("world", CompletableFuturesExtra.getCompleted(result2));
   }
 
   @Test
@@ -97,11 +102,12 @@ public class ExamplesTest {
   public void testDereference() throws Exception {
     final ListenableFuture<ListenableFuture<String>> f = Futures.immediateFuture(Futures.immediateFuture("hello"));
     final ListenableFuture<String> result1 = Futures.dereference(f);
-    assertEquals("hello", result1.get());
+    assertEquals("hello", FuturesExtra.getCompleted(result1));
 
     final CompletableFuture<CompletableFuture<String>> g = CompletableFuture.completedFuture(CompletableFuture.completedFuture("hello"));
 
-    final CompletableFuture<String> result2 = null; // Not sure how to dereference g in java8
+    final CompletionStage<String> result2 = CompletableFuturesExtra.dereference(g);
+    assertEquals("hello", CompletableFuturesExtra.getCompleted(result2));
 
   }
 }
