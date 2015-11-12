@@ -13,12 +13,12 @@ in Java 8, but come from a [Google Guava](https://github.com/google/guava)
 # Subtle differences
 
 Guava uses the terms `Function` and `AsyncFunction` where Async means that the
-function returns a new future. This means that all methods that use a regular
+function returns a new future. (This means that all methods that use a regular
 `Function` can be implemented with the method that takes an `AsyncFunction` and
-wraps the value in a `Futures.immediateFuture(x)`.
+wraps the value in a `Futures.immediateFuture(x)`.)
 
 The equivalent of methods that take an `AsyncFunction` in Java 8 is
-`thenCompose` (but that is only implemented for successful futures).
+`thenCompose` (but that is only implemented for successful futures, not exceptions).
 
 If you want to transform an exception by returning a different future you
 have to use a workaround (see below).
@@ -34,7 +34,7 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 
 | Guava style | Java 8 style |
 |---|---|
-| `Listenablefuture.addListener(callback)` | `future.whenComplete(callback)` |
+| [`Listenablefuture.addListener(callback)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/ListenableFuture.html#addListener%28java.lang.Runnable,%20java.util.concurrent.Executor%29) | [`future.whenComplete(callback)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#whenComplete-java.util.function.BiConsumer-) |
 | `Futures.addCallback(callback)` | `future.whenComplete(callback)` |
 | `Futures.transform(future, function)` | `future.thenApply(function)`  |
 | `Futures.transform(future, asyncFunction)` | `future.thenCompose(function)`  |
@@ -54,3 +54,4 @@ future
 
 # TODO: document allAsList / successfulAsList
 # TODO: document some of the things in futures-extra
+
