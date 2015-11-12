@@ -38,7 +38,7 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 | [`Futures.addCallback(callback)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#addCallback%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.util.concurrent.FutureCallback%29) | [`future.whenComplete(callback)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#whenComplete-java.util.function.BiConsumer-) |
 | [`Futures.transform(future, function)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#transform%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.base.Function%29) | [`future.thenApply(function)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#thenApply-java.util.function.Function-)  |
 | [`Futures.transform(future, asyncFunction)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#transform%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.util.concurrent.AsyncFunction%29) | [`future.thenCompose(function)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#thenCompose-java.util.function.Function-)  |
-| [`Futures.dereference(future)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#dereference%28com.google.common.util.concurrent.ListenableFuture%29) | `future.thenCompose(future -> future)`  |
+| [`Futures.dereference(future)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#dereference%28com.google.common.util.concurrent.ListenableFuture%29) | `future.thenCompose(stage -> stage)`  |
 | [`Futures.immediateFuture(value)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#immediateFuture%28V%29) | [`CompletableFuture.completedFuture(value)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#completedFuture-U-)  |
 | [`Futures.immediateFailedFuture(throwable)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#immediateFailedFuture%28java.lang.Throwable%29) | `new CompletableFuture().completeExceptionally(throwable)`  |
 | [`Futures.withFallback(future, function)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#withFallback%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.util.concurrent.FutureFallback%29) | [`future.exceptionally(function)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#exceptionally-java.util.function.Function-)  |
@@ -46,12 +46,52 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 
 `Futures.withFallback(future, asyncFunction)` can be mapped to
 ```java
-future
+stage
   .thenApply(v -> CompletableFuture.completedFuture(v))
   .exceptionally(asyncFunction)
-  .thenCompose(future -> future)
+  .thenCompose(stage -> stage)
 ```
 
-# TODO: document allAsList / successfulAsList
-# TODO: document some of the things in futures-extra
+# Futures-extra
+
+There is a library called [futures-extra](https://github.com/spotify/futures-extra) which provides
+more helpers for dealing with both Guava and Java 8 futures.
+
+Particularly for Java 8, there are the some useful helper methods.
+CFE here is short hand for CompletableFuturesExtra.
+```java
+
+// convert a java 8 future to a guava future
+ListenableFuture<T> output = CFE.toListenableFuture(CompletionStage<T> input);
+
+// convert a guava future to a java 8 future
+CompletableFuture<T> output = CFE.toCompletableFuture(ListenableFuture<T> input); 
+
+// equivalent to Futures.immediateFailedFuture(throwable) in guava
+CompletableFuture<T> output = CFE.exceptionallyCompletedFuture(throwable); 
+
+// equivalent to Futures.withFallback(Futures.transform(future, successAsyncFunction), failureAsyncFunction)
+// implemented as CFE.dereference(stage.thenCompose(function))
+CompletionStage<T> output = CFE.handleCompose(stage, function);
+
+// equivalent to Futures.withFallback(failureAsyncFunction)
+// implemented as CFE.dereference(CFE.wrap(stage.thenCompose(function))
+CompletionStage<T> output = CFE.exceptionallyCompose(stage, function);
+
+// equivalent to FuturesExtra.checkCompleted(future);
+// throws IllegalStateException if stage is not completed.
+CFE.checkCompleted(stage);
+
+// equivalent to FuturesExtra.getCompleted(future);
+// returns the output if the stage is completed, otherwise throws exception.
+// unlike variants of future.get(), this never blocks.
+T output = CFE.getCompleted(stage);
+
+// equivalent to Futures.dereference(future)
+// implemented as stage.thenCompose(stage -> stage)
+CompletionStage<T> output = CFE.dereference(CompletionStage<CompletionStage<T>> stage);
+```
+
+### TODO: document allAsList / successfulAsList
+### TODO: document some of the things in futures-extra
 
