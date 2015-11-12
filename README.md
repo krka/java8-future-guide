@@ -1,12 +1,14 @@
 # Introduction
 
 Java 8 introduced big improvements to its handling of futures.
-There is now CompletionStage and CompletableFuture which are much better
-adapted for asyncronous code compared to the old Future class.
+There is now [CompletionStage](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html)
+and [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) which are much better
+adapted for asyncronous code compared to
+the old [Future](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Future.html) interface.
 
 This guide is mostly targetted to developers who want to start using the futures
-in Java 8, but are mostly used to working with
-futures in Google Guava (ListenableFuture).
+in Java 8, but come from a [Google Guava](https://github.com/google/guava)
+([ListenableFuture](https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/ListenableFuture.java)) background
 
 # Subtle differences
 
@@ -32,11 +34,11 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 
 | Guava style | Java 8 style |
 |---|---|
-| `Listenablefuture.addListener` | `future.whenComplete` |
-| `Futures.addCallback` | `future.whenComplete` |
+| `Listenablefuture.addListener(callback)` | `future.whenComplete(callback)` |
+| `Futures.addCallback(callback)` | `future.whenComplete(callback)` |
 | `Futures.transform(future, function)` | `future.thenApply(function)`  |
 | `Futures.transform(future, asyncFunction)` | `future.thenCompose(function)`  |
-| `Futures.dereference(future)` | `future.thenCompose(t -> t)`  |
+| `Futures.dereference(future)` | `future.thenCompose(future -> future)`  |
 | `Futures.immediateFuture(value)` | `CompletableFuture.completedFuture(value)`  |
 | `Futures.immediateFailedFuture(throwable)` | `new CompletableFuture().completeExceptionally(throwable)`  |
 | `Futures.withFallback(future, function)` | `future.exceptionally(function)`  |
@@ -47,7 +49,7 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 future
   .thenApply(v -> CompletableFuture.completedFuture(v))
   .exceptionally(asyncFunction)
-  .thenCompose(t -> t)
+  .thenCompose(future -> future)
 ```
 
 # TODO: document allAsList / successfulAsList
