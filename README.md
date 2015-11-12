@@ -6,9 +6,9 @@ and [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/conc
 adapted for asyncronous code compared to
 the old [Future](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Future.html) interface.
 
-This guide is mostly targetted to developers who want to start using the futures
+This guide is mostly targetted at developers who want to start using the futures
 in Java 8, but come from a [Google Guava](https://github.com/google/guava)
-([ListenableFuture](https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/ListenableFuture.java)) background
+([ListenableFuture](https://github.com/google/guava/wiki/ListenableFutureExplained)) background.
 
 # Subtle differences
 
@@ -29,7 +29,7 @@ will just be executed on a different thread.
 
 # Guava -> Java 8 cheat sheet
 
-This is one way mapping. If you used to use Guava futures, you probably want to
+This is a one way mapping. If you used to use Guava futures, you probably want to
 do the java 8 equivalent. This does not mean that the reverse mapping works.
 
 | Guava style | Java 8 style |
@@ -57,7 +57,7 @@ stage
 There is a library called [futures-extra](https://github.com/spotify/futures-extra) which provides
 more helpers for dealing with both Guava and Java 8 futures.
 
-Particularly for Java 8, there are the some useful helper methods.
+Particularly for Java 8, there are  some useful helper methods.
 CFE here is short hand for CompletableFuturesExtra.
 ```java
 
