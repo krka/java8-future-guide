@@ -35,14 +35,14 @@ do the java 8 equivalent. This does not mean that the reverse mapping works.
 | Guava style | Java 8 style |
 |---|---|
 | [`Listenablefuture.addListener(callback)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/ListenableFuture.html#addListener%28java.lang.Runnable,%20java.util.concurrent.Executor%29) | [`future.whenComplete(callback)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#whenComplete-java.util.function.BiConsumer-) |
-| `Futures.addCallback(callback)` | `future.whenComplete(callback)` |
-| `Futures.transform(future, function)` | `future.thenApply(function)`  |
-| `Futures.transform(future, asyncFunction)` | `future.thenCompose(function)`  |
-| `Futures.dereference(future)` | `future.thenCompose(future -> future)`  |
-| `Futures.immediateFuture(value)` | `CompletableFuture.completedFuture(value)`  |
-| `Futures.immediateFailedFuture(throwable)` | `new CompletableFuture().completeExceptionally(throwable)`  |
-| `Futures.withFallback(future, function)` | `future.exceptionally(function)`  |
-| `SettableFuture.create()` | `new CompletableFuture()`  |
+| [`Futures.addCallback(callback)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#addCallback%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.util.concurrent.FutureCallback%29) | [`future.whenComplete(callback)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#whenComplete-java.util.function.BiConsumer-) |
+| [`Futures.transform(future, function)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#transform%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.base.Function%29) | [`future.thenApply(function)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#thenApply-java.util.function.Function-)  |
+| [`Futures.transform(future, asyncFunction)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#transform%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.util.concurrent.AsyncFunction%29) | [`future.thenCompose(function)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#thenCompose-java.util.function.Function-)  |
+| [`Futures.dereference(future)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#dereference%28com.google.common.util.concurrent.ListenableFuture%29) | `future.thenCompose(future -> future)`  |
+| [`Futures.immediateFuture(value)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#immediateFuture%28V%29) | [`CompletableFuture.completedFuture(value)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#completedFuture-U-)  |
+| [`Futures.immediateFailedFuture(throwable)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#immediateFailedFuture%28java.lang.Throwable%29) | `new CompletableFuture().completeExceptionally(throwable)`  |
+| [`Futures.withFallback(future, function)`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/Futures.html#withFallback%28com.google.common.util.concurrent.ListenableFuture,%20com.google.common.util.concurrent.FutureFallback%29) | [`future.exceptionally(function)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html#exceptionally-java.util.function.Function-)  |
+| [`SettableFuture.create()`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/SettableFuture.html#create%28%29) | [`new CompletableFuture()`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#CompletableFuture--)  |
 
 `Futures.withFallback(future, asyncFunction)` can be mapped to
 ```java
