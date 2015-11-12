@@ -10,23 +10,6 @@ This guide is mostly targetted at developers who want to start using the futures
 in Java 8, but come from a [Google Guava](https://github.com/google/guava)
 ([ListenableFuture](https://github.com/google/guava/wiki/ListenableFutureExplained)) background.
 
-# Subtle differences
-
-Guava uses the terms `Function` and `AsyncFunction` where Async means that the
-function returns a new future. (This means that all methods that use a regular
-`Function` can be implemented with the method that takes an `AsyncFunction` and
-wraps the value in a `Futures.immediateFuture(x)`.)
-
-The equivalent of methods that take an `AsyncFunction` in Java 8 is
-`thenCompose` (but that is only implemented for successful futures, not exceptions).
-
-If you want to transform an exception by returning a different future you
-have to use a workaround (see below).
-
-There are Async variants of the methods for futures in Java 8 too, but
-that means something completely different: the function or callback you pass in
-will just be executed on a different thread.
-
 # Guava -> Java 8 cheat sheet
 
 This is a one way mapping. If you used to use Guava futures, you probably want to
@@ -51,6 +34,23 @@ stage
   .exceptionally(asyncFunction)
   .thenCompose(stage -> stage)
 ```
+
+# Subtle differences
+
+Guava uses the terms `Function` and `AsyncFunction` where Async means that the
+function returns a new future. (This means that all methods that use a regular
+`Function` can be implemented with the method that takes an `AsyncFunction` and
+wraps the value in a `Futures.immediateFuture(x)`.)
+
+The equivalent of methods that take an `AsyncFunction` in Java 8 is
+`thenCompose` (but that is only implemented for successful futures, not exceptions).
+
+If you want to transform an exception by returning a different future you
+have to use a workaround (see below).
+
+There are Async variants of the methods for futures in Java 8 too, but
+that means something completely different: the function or callback you pass in
+will just be executed on a different thread.
 
 # Futures-extra
 
